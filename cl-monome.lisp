@@ -62,27 +62,33 @@
   (count :uchar) (data :pointer))
 
 ;; don't bother with this - loads of gicky structs and such useless junk...
-;; (defcfun "monome_register_handler" :int
-;;   (monome :pointer) (event-type :uint) (callback :pointer) (data :pointer))
-
-(defcfun "monome_register_button_press" :int
-  (monome :pointer) (callback :pointer))
-
-(defcfun "monome_register_button_release" :int
-  (monome :pointer) (callback :pointer))
+(defcfun "monome_register_handler" :int
+  (monome :pointer) (event-type :uint) (callback :pointer) (data :pointer))
+(defcfun "monome_event_get_grid" :int
+  (monome-event :pointer) (*x :pointer) (*y :pointer) (**monome :pointer))
 
 ;; some example handlers to light LEDs on corresponding
 ;; button presses
 
-(defcallback dummy-handle-press :void ((monome :pointer) (x :uint) (y :uint))
-  (print (list 'press x y))
-  (monome-led-on (mem-ref monome :pointer) x y)
-  (cffi:null-pointer))
+(defcallback dummy-handle-button-down :void ((monome-event :pointer) (data :pointer))
+  (with-foreign-pointer (*x 4)
+    (with-foreign-pointer (*y 4)
+      (with-foreign-pointer (**monome 4)
+	(monome-event-get-grid monome-event *x *y **monome)
+	(let ((x (mem-ref *x :uint))
+	      (y (mem-ref *y :uint)))
+	  (print (list 'press x y))
+	  (monome-led-on (mem-ref **monome :pointer) x y))))))
 
-(defcallback dummy-handle-release :void ((monome :pointer) (x :uint) (y :uint))
-  (print (list 'release x y))
-  (monome-led-off (mem-ref monome :pointer) x y)
-  (cffi:null-pointer))
+(defcallback dummy-handle-button-up :void ((monome-event :pointer) (data :pointer))
+  (with-foreign-pointer (*x 4)
+    (with-foreign-pointer (*y 4)
+      (with-foreign-pointer (**monome 4)
+	(monome-event-get-grid monome-event *x *y **monome)
+	(let ((x (mem-ref *x :uint))
+	      (y (mem-ref *y :uint)))
+	  (print (list 'release x y))
+	  (monome-led-off (mem-ref **monome :pointer) x y))))))
 
 (defcfun "monome_event_loop" :pointer (monome :pointer))
 
