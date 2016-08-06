@@ -61,9 +61,10 @@
   (monome :pointer) (x :uint) (y-off :uint)
   (count :uchar) (data :pointer))
 
-;; don't bother with this - loads of gicky structs and such useless junk...
 (defcfun "monome_register_handler" :int
   (monome :pointer) (event-type :uint) (callback :pointer) (data :pointer))
+;; this is  some glue code  added to  libmonome specially so  we don't
+;; have to do struct comprehensions inside these bindings
 (defcfun "monome_event_get_grid" :int
   (monome-event :pointer) (*x :pointer) (*y :pointer) (**monome :pointer))
 
