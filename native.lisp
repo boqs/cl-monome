@@ -132,7 +132,7 @@
   (loop for row in 8x8-subgrid
      do (loop for (hb lb) on row by #'cddr
 	   do (monome-send-bytes (pack-nibbles hb lb))))
-  (sleep 0.000001))
+  (sleep 0.000005))
 
 (def-monome-cmd monome-row-intensities (x y 8x1-row)
   (monome-send-bytes #x1b x y)
