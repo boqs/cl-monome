@@ -48,16 +48,21 @@
 
 (defvar *out-buffer*)
 
+(defun octet-p (thing)
+  (typep thing '(unsigned-byte 8)))
+
 (defmacro def-monome-cmd (spec args &body body)
   `(defun ,spec ,(if (find '&optional args)
 		     (append args '((monome-output-stream *monome-output-stream*)))
 		     (append args '(&optional (monome-output-stream *monome-output-stream*))))
      (let ((*out-buffer*))
        ,@body
-       (unwind-protect nil
-	 (loop for byte in *out-buffer*
-	      do (write-byte byte monome-output-stream))
-	 (force-output monome-output-stream)))))
+       (if (every #'octet-p *out-buffer*)
+	   (unwind-protect nil
+	     (loop for byte in *out-buffer*
+		do (write-byte byte monome-output-stream))
+	     (force-output monome-output-stream))
+	   (error "bad data destined heading for the fragile monome raw serial protocol, bailing...")))))
 
 (defun monome-send-bytes (&rest bytes)
   (setf *out-buffer*
