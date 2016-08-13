@@ -72,6 +72,7 @@
 ;; button presses
 
 (defcallback dummy-handle-button-down :void ((monome-event :pointer) (data :pointer))
+  (declare (ignore data))
   (with-foreign-pointer (*x 4)
     (with-foreign-pointer (*y 4)
       (with-foreign-pointer (**monome 4)
@@ -82,6 +83,7 @@
 	  (monome-led-on (mem-ref **monome :pointer) x y))))))
 
 (defcallback dummy-handle-button-up :void ((monome-event :pointer) (data :pointer))
+  (declare (ignore data))
   (with-foreign-pointer (*x 4)
     (with-foreign-pointer (*y 4)
       (with-foreign-pointer (**monome 4)
