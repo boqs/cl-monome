@@ -6,6 +6,7 @@
   :license "chuffs & guffs"
   :serial t
   :components ((:file "package")
-               (:file "cl-monome"))
-  :depends-on (:cffi))
+               (:file "cl-monome")
+	       (:file "native"))
+  :depends-on (:cffi :external-program))
 
