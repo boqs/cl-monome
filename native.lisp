@@ -46,17 +46,22 @@
 			     :x (read-byte monome-input-stream)
 			     :y (read-byte monome-input-stream)))))))
 
+(defvar *out-buffer*)
+
 (defmacro def-monome-cmd (spec args &body body)
   `(defun ,spec ,(if (find '&optional args)
 		     (append args '((monome-output-stream *monome-output-stream*)))
 		     (append args '(&optional (monome-output-stream *monome-output-stream*))))
-     ,@body
-     (force-output monome-output-stream)))
+     (let ((*out-buffer*))
+       ,@body
+       (unwind-protect nil
+	 (loop for byte in *out-buffer*
+	      do (write-byte byte monome-output-stream))
+	 (force-output monome-output-stream)))))
 
-(defmacro monome-send-bytes (&rest bytes)
-  `(progn ,@(mapcar (lambda (byte)
-		      `(write-byte ,byte monome-output-stream))
-		    bytes)))
+(defun monome-send-bytes (&rest bytes)
+  (setf *out-buffer*
+	(append *out-buffer* bytes)))
 
 (def-monome-cmd monome-request-device-info ()
   (monome-send-bytes #x00))
@@ -130,9 +135,9 @@
   		 8x8-subgrid))
   (monome-send-bytes #x1a x y)
   (loop for row in 8x8-subgrid
-     do (loop for (hb lb) on row by #'cddr
-	   do (monome-send-bytes (pack-nibbles hb lb))))
-  (sleep 0.000005))
+     do (sleep 0.0001)
+       (loop for (hb lb) on row by #'cddr
+	   do (monome-send-bytes (pack-nibbles hb lb)))))
 
 (def-monome-cmd monome-row-intensities (x y 8x1-row)
   (monome-send-bytes #x1b x y)

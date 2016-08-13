@@ -8,5 +8,5 @@
   :components ((:file "package")
                (:file "cl-monome")
 	       (:file "native"))
-  :depends-on (:cffi :external-program))
+  :depends-on (:cffi :external-program :optima))
 
