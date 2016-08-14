@@ -77,24 +77,21 @@
 (def-monome-cmd monome-request-grid-size ()
   (monome-send-bytes #x05))
 
-(def-monome-cmd monome-set-led (x y)
-  (monome-send-bytes #x11 x y))
-
-(def-monome-cmd monome-unset-led (x y)
-  (monome-send-bytes #x10 x y))
-
-(def-monome-cmd monome-set-all ()
-  (monome-send-bytes #x13))
-
-(def-monome-cmd monome-unset-all ()
-  (monome-send-bytes #x12))
-
 (defun coerce-to-binary (thing)
   (typecase thing
     (number (cond ((<= thing 0) 0)
 		  (t 1)))
     (null 0)
     (t 1)))
+
+(def-monome-cmd monome-set-led (x y state)
+  (monome-send-bytes (+ #x10
+			(coerce-to-binary state))
+		     x y))
+
+(def-monome-cmd monome-set-all (state)
+  (monome-send-bytes (+ #x12
+			(coerce-to-binary state))))
 
 (defun pack-byte (row)
   (loop for el in row
@@ -116,17 +113,21 @@
 (def-monome-cmd monome-set-row (x y 8x1-row)
   (monome-send-bytes #x15 x y (pack-byte 8x1-row)))
 
-(def-monome-cmd monome-set-column (x y 8x1-col)
+(def-monome-cmd monome-set-col (x y 8x1-col)
   (monome-send-bytes #x16 x y (pack-byte 8x1-col)))
 
+(defun coerce-to-nibble (number)
+  (round (min (max number 0)
+	      15)))
+
 (def-monome-cmd monome-set-intensity (i)
-  (monome-send-bytes #x17 i))
+  (monome-send-bytes #x17 (coerce-to-nibble i)))
 
 (def-monome-cmd monome-set-led-intensity (x y i)
-  (monome-send-bytes #x18 x y i))
+  (monome-send-bytes #x18 x y (coerce-to-nibble i)))
 
 (def-monome-cmd monome-set-all-intensity (i)
-  (monome-send-bytes #x19 i))
+  (monome-send-bytes #x19 (coerce-to-nibble i)))
 
 (defun pack-nibbles (hi-nib lo-nib)
   (+ (ash hi-nib 4)
