@@ -1,4 +1,4 @@
-(in-package :cl-monome)
+(in-package :monome-serialraw)
 
 (defvar *monome-output-stream*)
 

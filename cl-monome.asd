@@ -6,6 +6,7 @@
   :license "errr whut?"
   :serial t
   :components ((:file "package")
-               (:file "cl-monome"))
+	       (:file "monome-serialraw")
+               (:file "monome-serialosc"))
   :depends-on (:cffi :external-program :optima))
 
