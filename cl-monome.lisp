@@ -22,7 +22,7 @@
   `(progn
      (setup-monome-dev ,monome-dev-file)
      (with-open-file (,monome-input-stream ,monome-dev-file
-					   :direction :input
+					   :direction :io
 					   :if-exists :overwrite
 					   :element-type '(unsigned-byte 8))
        ,@body)))
