@@ -8,10 +8,12 @@
 
 (defvar *monome-devices* nil)
 
+(defvar *app-osc-port* 6666)
+
 (defun detect-monome-devices ()
   "call this function to index monome devices from serial osc master control program"
   (let ((in (socket-connect nil nil
-			    :local-port 6666
+			    :local-port *app-osc-port*
 			    :local-host #(127 0 0 1)
 			    :protocol :datagram
 			    :element-type '(unsigned-byte 8)
@@ -22,7 +24,7 @@
 			     :element-type '(unsigned-byte 8)))
 	(buffer (make-sequence '(vector (unsigned-byte 8)) 1024)))
     (unwind-protect
-	 (let ((mess (osc:encode-message "/serialosc/list" "localhost" 6666)))
+	 (let ((mess (osc:encode-message "/serialosc/list" "localhost" *app-osc-port*)))
 	   (socket-send out mess (length mess))
 	   (let ((monomes nil))
 	     (loop while (wait-for-input in
@@ -65,7 +67,7 @@
     (socket-close *default-monome-key-port*))
   (setf *default-monome-key-port*
 	(socket-connect nil nil
-			:local-port (+ 6667 idx)
+			:local-port (+ *app-osc-port* 1 idx)
 			:local-host #(127 0 0 1)
 			:protocol :datagram
 			:element-type '(unsigned-byte 8)
@@ -76,7 +78,7 @@
 					(idx 0))
 			     &body body)
   `(let ((,monome-input-sock (socket-connect nil nil
-			:local-port (+ 6667 ,idx)
+			:local-port (+ *app-osc-port* 1 ,idx)
 			:local-host #(127 0 0 1)
 			:protocol :datagram
 			:element-type '(unsigned-byte 8)
