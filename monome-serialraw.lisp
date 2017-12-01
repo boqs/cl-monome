@@ -5,7 +5,7 @@
 (defun setup-monome-dev (&optional (dev-file "/dev/ttyUSB0"))
   (external-program:run "stty" (list "-F" dev-file "115200" "sane" "-brkint" "-icrnl" "-opost" "-onlcr" "-isig" "-icanon" "-iexten" "-echo" "-echoe")))
 
-(defmacro with-monome-output-stream ((&optional (monome-output-stream '*monome-output-stream*)
+(defmacro with-monome-output ((&optional (monome-output-stream '*monome-output-stream*)
 						(monome-dev-file "/dev/ttyUSB0"))
 				     &body body)
   `(with-open-file (,monome-output-stream ,monome-dev-file
@@ -16,7 +16,7 @@
 
 (defvar *monome-input-stream*)
 
-(defmacro with-monome-input-stream ((&optional (monome-input-stream '*monome-input-stream*)
+(defmacro with-monome-input ((&optional (monome-input-stream '*monome-input-stream*)
 						(monome-dev-file "/dev/ttyUSB0"))
 				     &body body)
   `(progn
@@ -91,7 +91,7 @@
 
 (def-monome-cmd monome-set-all (state)
   (monome-send-bytes (+ #x12
-			(coerce-to-binary state))))
+			(coerce-to-state))))
 
 (defun pack-byte (row)
   (loop for el in row

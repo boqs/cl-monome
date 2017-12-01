@@ -2,7 +2,7 @@
 
 (defpackage :monome-serialraw
   (:use #:cl #:cffi #:optima)
-  (:export #:with-monome-output-stream #:with-monome-input-stream
+  (:export #:with-monome-output #:with-monome-input
 	   #:monome-button-event #:monome-button-press #:monome-button-release
 	   #:x #:y
 	   #:monome-receive-message
@@ -17,8 +17,8 @@
 	   #:monome-col-intensities))
 
 (defpackage :monome-serialosc
-  (:use #:cl #:cffi #:optima)
-  (:export #:with-monome-output-stream #:with-monome-input-stream
+  (:use #:cl #:cffi #:optima #:usocket #:osc)
+  (:export #:with-monome-output #:with-monome-input
 	   #:monome-button-event #:monome-button-press #:monome-button-release
 	   #:x #:y
 	   #:monome-receive-message
@@ -30,4 +30,6 @@
 
 	   #:monome-set-led-intensity #:monome-set-all-intensity
 	   #:monome-map-intensities #:monome-row-intensities
-	   #:monome-col-intensities))
+	   #:monome-col-intensities
+
+	   #:monome-map-128 #:setup-monome-dev #:grab-focus))

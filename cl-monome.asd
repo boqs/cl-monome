@@ -8,5 +8,5 @@
   :components ((:file "package")
 	       (:file "monome-serialraw")
                (:file "monome-serialosc"))
-  :depends-on (:cffi :external-program :optima))
+  :depends-on (:cffi :external-program :optima :osc :usocket))
 
