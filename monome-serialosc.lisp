@@ -94,11 +94,12 @@
 (defun grab-focus (&optional (idx 0))
   (let ((buf (osc:encode-message
 	      "/sys/port"
-	      (+ 6667 idx))))
-    (print buf)
-    (socket-send *default-monome-led-port*
-		 buf (length buf))
-    (setf *focus* t)))
+	      (+ *app-osc-port* 1 idx))))
+    (handler-case
+	(socket-send *default-monome-led-port*
+		     buf (length buf))
+      (usocket:connection-refused-error (e)
+	(declare (ignore e))))))
 
 (defun monome-wait-key ()
   (let ((buf (make-sequence '(vector (unsigned-byte 8)) 1024)))
@@ -113,13 +114,21 @@
 	((list "/monome/grid/key" x y 1)
 	 (make-instance 'monome-button-press :x x :y y))
 	((list "/monome/grid/key" x y 0)
-	 (make-instance 'monome-button-release :x x :y y)))))
+	 (make-instance 'monome-button-release :x x :y y))
+	((list "/sys/port" p)
+	 (list :focus (setf *focus* (= p (+ *app-osc-port* 1)))))
+	(default default);; pass unmatched osc messages un-interpreted
+	)))
 
 (defun monome-send-message (address &rest args)
-  (let ((mess (apply #'osc:encode-message
-		     (cons address args))))
-    (socket-send *default-monome-led-port*
-		 mess (length mess))))
+  (when *focus*
+    (let ((mess (apply #'osc:encode-message
+		       (cons address args))))
+      (handler-case
+	  (socket-send *default-monome-led-port*
+		       mess (length mess))
+	(usocket:connection-refused-error (e)
+	  (declare (ignore e)))))))
 
 (defun monome-set-led-intensity (x y l)
   (monome-send-message "/monome/grid/led/level/set" x y l))
