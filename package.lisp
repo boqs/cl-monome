@@ -21,6 +21,7 @@
   (:export #:with-monome-output #:with-monome-input
 	   #:monome-button-event #:monome-button-press #:monome-button-release
 	   #:x #:y
+	   #:focus #:monome-focus-event
 	   #:monome-receive-message
 	   #:monome-request-device-info #:monome-request-id-string
 	   #:monome-request-grid-size

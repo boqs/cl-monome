@@ -6,6 +6,10 @@
 (defclass monome-button-release (monome-button-event)
   ())
 
+(defclass monome-focus-event ()
+  ((focus :initarg :focus
+	  :accessor focus)))
+
 (defvar *monome-devices* nil)
 
 (defvar *app-osc-port* 6666)
@@ -89,8 +93,6 @@
        (when ,monome-input-sock
 	 (socket-close ,monome-input-sock)))))
 
-(defvar *focus* nil)
-
 (defun grab-focus (&optional (idx 0))
   (let ((buf (osc:encode-message
 	      "/sys/port"
@@ -116,19 +118,19 @@
 	((list "/monome/grid/key" x y 0)
 	 (make-instance 'monome-button-release :x x :y y))
 	((list "/sys/port" p)
-	 (list :focus (setf *focus* (= p (+ *app-osc-port* 1)))))
+	 (make-instance 'monome-focus-event
+			:focus (= p (+ *app-osc-port* 1))))
 	(default default);; pass unmatched osc messages un-interpreted
 	)))
 
 (defun monome-send-message (address &rest args)
-  (when *focus*
-    (let ((mess (apply #'osc:encode-message
-		       (cons address args))))
-      (handler-case
-	  (socket-send *default-monome-led-port*
-		       mess (length mess))
-	(usocket:connection-refused-error (e)
-	  (declare (ignore e)))))))
+  (let ((mess (apply #'osc:encode-message
+		     (cons address args))))
+    (handler-case
+	(socket-send *default-monome-led-port*
+		     mess (length mess))
+      (usocket:connection-refused-error (e)
+	(declare (ignore e))))))
 
 (defun monome-set-led-intensity (x y l)
   (monome-send-message "/monome/grid/led/level/set" x y l))
