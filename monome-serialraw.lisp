@@ -6,8 +6,8 @@
   (external-program:run "stty" (list "-F" dev-file "115200" "sane" "-brkint" "-icrnl" "-opost" "-onlcr" "-isig" "-icanon" "-iexten" "-echo" "-echoe")))
 
 (defmacro with-monome-output ((&optional (monome-output-stream '*monome-output-stream*)
-						(monome-dev-file "/dev/ttyUSB0"))
-				     &body body)
+				 (monome-dev-file "/dev/ttyUSB0"))
+			      &body body)
   `(with-open-file (,monome-output-stream ,monome-dev-file
 					  :direction :output
 					  :if-exists :overwrite
@@ -17,8 +17,8 @@
 (defvar *monome-input-stream*)
 
 (defmacro with-monome-input ((&optional (monome-input-stream '*monome-input-stream*)
-						(monome-dev-file "/dev/ttyUSB0"))
-				     &body body)
+				(monome-dev-file "/dev/ttyUSB0"))
+			     &body body)
   `(progn
      (setup-monome-dev ,monome-dev-file)
      (with-open-file (,monome-input-stream ,monome-dev-file
@@ -33,6 +33,10 @@
   ())
 (defclass monome-button-release (monome-button-event)
   ())
+
+(defclass monome-focus-event ()
+  ((focus :initarg :focus
+	  :accessor focus)))
 
 (defun monome-receive-message (&optional (monome-input-stream *monome-input-stream*))
   (let ((byte (read-byte monome-input-stream)))
@@ -91,7 +95,7 @@
 
 (def-monome-cmd monome-set-all (state)
   (monome-send-bytes (+ #x12
-			(coerce-to-state))))
+			(coerce-to-binary state))))
 
 (defun pack-byte (row)
   (loop for el in row
@@ -154,3 +158,24 @@
   (monome-send-bytes #x1c x y)
   (loop for (hb lb) on 8x1-col by #'cddr
      do (monome-send-bytes (pack-nibbles hb lb))))
+
+;; FIXME duplicated code between here and monome-serialosc
+(defun monome-map-128 (16x8-grid)
+  (assert (= (length 16x8-grid) 8))
+  (assert (every (lambda (row)
+		   (= (length row)
+		      16))
+		 16x8-grid))
+  (monome-map-intensities 0 0
+			  (mapcar (lambda (row)
+				    (subseq row 0 8))
+				  16x8-grid))
+
+  (monome-map-intensities 8 0
+			  (mapcar (lambda (row)
+				    (subseq row 8))
+				  16x8-grid)))
+
+(defun grab-focus (&optional (idx 0))
+  (declare (ignore idx))
+  (format t "dummy grab focus for serialraw backend"))
