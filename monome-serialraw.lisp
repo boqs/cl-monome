@@ -20,7 +20,6 @@
 				(monome-dev-file "/dev/ttyUSB0"))
 			     &body body)
   `(progn
-     (setup-monome-dev ,monome-dev-file)
      (with-open-file (,monome-input-stream ,monome-dev-file
 					   :direction :io
 					   :if-exists :overwrite
@@ -158,23 +157,6 @@
   (monome-send-bytes #x1c x y)
   (loop for (hb lb) on 8x1-col by #'cddr
      do (monome-send-bytes (pack-nibbles hb lb))))
-
-;; FIXME duplicated code between here and monome-serialosc
-(defun monome-map-128 (16x8-grid)
-  (assert (= (length 16x8-grid) 8))
-  (assert (every (lambda (row)
-		   (= (length row)
-		      16))
-		 16x8-grid))
-  (monome-map-intensities 0 0
-			  (mapcar (lambda (row)
-				    (subseq row 0 8))
-				  16x8-grid))
-
-  (monome-map-intensities 8 0
-			  (mapcar (lambda (row)
-				    (subseq row 8))
-				  16x8-grid)))
 
 (defun grab-focus (&optional (idx 0))
   (declare (ignore idx))

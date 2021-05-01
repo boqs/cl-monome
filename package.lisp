@@ -18,7 +18,7 @@
 	   #:monome-map-intensities #:monome-row-intensities
 	   #:monome-col-intensities
 
-	   #:monome-map-128 #:setup-monome-dev #:grab-focus))
+	   #:setup-monome-dev #:grab-focus))
 
 (defpackage :monome-serialosc
   (:use #:cl #:cffi #:optima #:usocket #:osc)
@@ -38,4 +38,4 @@
 	   #:monome-map-intensities #:monome-row-intensities
 	   #:monome-col-intensities
 
-	   #:monome-map-128 #:setup-monome-dev #:grab-focus))
+	   #:setup-monome-dev #:grab-focus))

@@ -160,26 +160,4 @@
     collect (loop for j below 8
 	       collect (+ i j))))
 
-(defun monome-map-128 (16x8-grid)
-    (assert (= (length 16x8-grid) 8))
-    (assert (every (lambda (row)
-		     (= (length row)
-			16))
-		   16x8-grid))
-    (monome-map-intensities 0 0
-			    (mapcar (lambda (row)
-				      (subseq row 0 8))
-				    16x8-grid))
-
-    (monome-map-intensities 8 0
-			    (mapcar (lambda (row)
-				      (subseq row 8))
-				    16x8-grid)))
-#+nil
-(monome-map-128
- (loop for i below 8
-    collect (loop for j below 16
-	       collect (+ i (round (/ j 2))))))
-
-
 
